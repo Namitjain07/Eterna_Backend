@@ -11,11 +11,12 @@ import { orderService } from '../services/orderService';
  */
 
 // Redis connection configuration
-const connection = new IORedis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null,
-});
+const connection = new IORedis(
+  process.env.Redis_PUBLIC_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`,
+  {
+    maxRetriesPerRequest: null,
+  }
+);
 
 // Order execution queue
 export const orderQueue = new Queue('order-execution', {
