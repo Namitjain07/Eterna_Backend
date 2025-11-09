@@ -8,11 +8,15 @@ export class Database {
   private pool: Pool;
 
   constructor() {
+    const databaseUrl = process.env.DATABASE_URL;
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    // Use SSL for production (Railway), disable for local development
     this.pool = new Pool({
-      connectionString: process.env.DATABASE_PUBLIC_URL,
-      ssl: {
-        rejectUnauthorized: false, // required for Railway
-      },
+      connectionString: databaseUrl,
+      ssl: databaseUrl?.includes('railway') || isProduction ? {
+        rejectUnauthorized: false,
+      } : false,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
