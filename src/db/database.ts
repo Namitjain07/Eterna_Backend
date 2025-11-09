@@ -9,7 +9,7 @@ export class Database {
 
   constructor() {
     this.pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.DATABASE_PUBLIC_URL,
       ssl: {
         rejectUnauthorized: false, // required for Railway
       },
