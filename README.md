@@ -1,3 +1,5 @@
+ Deployed Public URL -> https://eternabackend-production.up.railway.app
+
 # ETERNA Order Execution Engine 🚀
 
 A high-performance order execution engine for Solana DEX trading with intelligent routing, real-time WebSocket updates, and concurrent queue processing.
