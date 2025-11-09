@@ -1,0 +1,229 @@
+{
+  "info": {
+    "name": "ETERNA Order Execution Engine",
+    "description": "Complete API collection for testing the order execution engine with DEX routing and WebSocket support",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "eterna-order-engine-v1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the server is running and healthy"
+      }
+    },
+    {
+      "name": "Submit Market Order - SOL to USDC",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.orderId) {",
+              "    pm.collectionVariables.set('orderId', jsonData.orderId);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"SOL\",\n  \"tokenOut\": \"USDC\",\n  \"amountIn\": 10,\n  \"slippage\": 0.01\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Submit a market order to swap 10 SOL for USDC with 1% slippage tolerance"
+      }
+    },
+    {
+      "name": "Submit Market Order - Large Amount",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"SOL\",\n  \"tokenOut\": \"USDC\",\n  \"amountIn\": 100,\n  \"slippage\": 0.02\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Submit a larger market order with 2% slippage tolerance"
+      }
+    },
+    {
+      "name": "Submit Market Order - Tight Slippage",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"USDC\",\n  \"tokenOut\": \"SOL\",\n  \"amountIn\": 50,\n  \"slippage\": 0.005\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Submit order with tight slippage (0.5%) to test slippage protection"
+      }
+    },
+    {
+      "name": "Get Order Details",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/orders/{{orderId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "{{orderId}}"]
+        },
+        "description": "Retrieve details of a specific order by ID"
+      }
+    },
+    {
+      "name": "Get Queue Metrics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/queue/metrics",
+          "host": ["{{base_url}}"],
+          "path": ["api", "queue", "metrics"]
+        },
+        "description": "Get current queue processing metrics (waiting, active, completed, failed)"
+      }
+    },
+    {
+      "name": "Submit Multiple Orders (Batch Test)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"SOL\",\n  \"tokenOut\": \"USDC\",\n  \"amountIn\": 5,\n  \"slippage\": 0.01\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Use Postman Runner to submit this request multiple times for concurrency testing"
+      }
+    },
+    {
+      "name": "Invalid Order - Missing Fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"SOL\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Test validation error handling with incomplete order data"
+      }
+    },
+    {
+      "name": "Invalid Order - Negative Amount",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"SOL\",\n  \"tokenOut\": \"USDC\",\n  \"amountIn\": -10,\n  \"slippage\": 0.01\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Test validation error handling with negative amount"
+      }
+    },
+    {
+      "name": "Invalid Order - Invalid Slippage",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"market\",\n  \"tokenIn\": \"SOL\",\n  \"tokenOut\": \"USDC\",\n  \"amountIn\": 10,\n  \"slippage\": 1.5\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/execute",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "execute"]
+        },
+        "description": "Test validation error handling with invalid slippage (>100%)"
+      }
+    }
+  ]
+}
